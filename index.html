@@ -1,152 +1,135 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Quiz</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #331505;
-    }
-
-    .container {
-      width: 100%;
-      padding-right: 80px;
-	 padding-left: 60px;
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    .hidden { display: none; }
-
-    button {
-      padding: 20px 50px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
+<meta charset="UTF-8">
+<title>Quiz</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #331505;
+}
+.container {
+    width: 100%;
+    padding-right: 80px;
+    padding-left: 60px;
+    border-radius: 12px;
+    text-align: center;
+}
+.hidden {
+    display: none;
+}
+button {
+    padding: 20px 50px;
+    margin: 10px;
+    width: 70%;
+    border: none;
+    border-radius: 8px;
     background : #ff6a00;
-    background: linear-gradient(90deg,#ff671b, #d22a2f 100%);
+    background: linear-gradient(90deg, #ff671b, #d22a2f 100%);
     color : #ffffff;
-      cursor: pointer;
-      font-size: 24px;
-    }
-
-    button:hover { background: #ff671b; }
-	button:checked { 
-		  background:#ffffff;
-		  color:#000000;
-	  }
-
-    .answers button {
-      display: block;
-      width: 100%;
-    }
-
-    #timer {
-      font-size: 20px;
-      margin-bottom: 20px;
-	  color:white;
-    }
-	  
-    .timer-circle {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 20px;
-      position: relative;
-    }
-	  
-	  .timer-circle svg {
-      transform: rotate(-90deg);
-    }
-
-    .timer-circle circle {
-      fill: none;
-      stroke-width: 8;
-    }
-
-    .timer-bg {
-      stroke: #ff671b;
-    }
-
-    .timer-progress {
-      stroke: #f1efeb;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.2s linear;
-    }
-
-    .timer-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 18px;
-      font-weight: bold;
-    }
-	  
-    #result {
-      font-size: 100px;
-      font-weight: bold;
-      margin: 20px 0;
-	  color:#ff7632;
-    }
-	  
-	  #resultPage{
-		  color:white;
-	  }
-	  
-	  #question{
-	 color:white;
-	  }
-	  
-	  #progress{
-		  font-size:14px; 
-		  margin-bottom:50px; 
-		  color:#8c8c8c;
-	  }
-	  
-	  #thanksEnd{
-		  font-size: 45px;
-	  }
-	  
-	  #endBtn{
-	  margin-top: 50px;
-      border: none;
-      border-radius: 8px;
-      background : #141413;
-      color : #54524f;
-      cursor: pointer;
-      font-size: 24px;
-	  }
-	  
-	  #logo-bottom{
-		  padding-top: 60px;
-	  }
-	  
-	  #result-bottom-infos{
-		border-top: 1px solid #ffffff;
-		  margin-top: 50px;
-		  padding-top: 25px;
-	  }
-	  
-  </style>
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+button:hover {
+    background: #ff671b;
+}
+button:checked {
+    background: #ffffff;
+    color: #000000;
+}
+.answers button {
+    display: block;
+    width: 100%;
+}
+#timer {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: white;
+}
+.timer-circle {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+.timer-circle svg {
+    transform: rotate(-90deg);
+}
+.timer-circle circle {
+    fill: none;
+    stroke-width: 8;
+}
+.timer-bg {
+    stroke: #ff671b;
+}
+.timer-progress {
+    stroke: #f1efeb;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.2s linear;
+}
+.timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+}
+#result {
+    font-size: 6rem;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #ff7632;
+}
+#resultPage {
+    color: white;
+}
+#question {
+    color: white;
+}
+#progress {
+    font-size: 14px;
+    margin-bottom: 50px;
+    color: #8c8c8c;
+}
+#thanksEnd {
+    font-size: 1.5rem;
+}
+#endBtn {
+    margin-top: 50px;
+    width: 70%;
+    border: none;
+    border-radius: 8px;
+    background : #141413;
+    color : #54524f;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+#logo-bottom {
+    padding-top: 60px;
+}
+#result-bottom-infos {
+    border-top: 1px solid #ffffff;
+    margin-top: 50px;
+    padding-top: 25px;
+}
+</style>
 </head>
 <body>
-
-<div class="container">
-
+<div class="container"> 
+  
   <!-- INTRO -->
-  <div id="intro">
+  <div id="intro"> 
     <!-- <h1>Bienvenue au Quiz</h1>
-    <p>Testez vos connaissances !</p> -->
-	<img src="ready-title-v3.png" width="100%">
+    <p>Testez vos connaissances !</p> --> 
+    <img src="ready-title-v3.png" width="100%">
     <button onclick="startQuiz()">I'm ready</button>
   </div>
-
+  
   <!-- QUIZ -->
   <div id="quiz" class="hidden">
     <div id="progress"></div>
@@ -159,25 +142,19 @@
     </div>
     <h2 id="question"></h2>
     <div class="answers" id="answers"></div>
-	  <div id="logo-bottom">
-	 <img src="Mclaren-MA-logo.png" width="50%">
-		</div>
+    <div id="logo-bottom"> <img src="Mclaren-MA-logo.png" width="50%"> </div>
   </div>
-
+  
   <!-- RESULT -->
-  <div id="resultPage" class="hidden">
-	<img src="Mclaren-MA-logo.png" width="50%">
+  <div id="resultPage" class="hidden"> <img src="Mclaren-MA-logo.png" width="50%">
     <p id="thanksEnd">Thanks for taking the <b>Mastercard x McLaren Pole Position Challenge</b>.</p>
-    <div id="result">
-	</div>
-	<div id="result-bottom-infos">
-	<p>Ask your hostess to claim your Mastercard x McLaren merchandise.</p>
-    <button id="endBtn" onclick="goToCeros()">Hostess to validate</button>
-	 </div>
+    <div id="result"> </div>
+    <div id="result-bottom-infos">
+      <p>Ask your hostess to claim your Mastercard x McLaren merchandise.</p>
+      <button id="endBtn" onclick="goToCeros()">Hostess to validate</button>
+    </div>
   </div>
-
 </div>
-
 <script>
   const questions = [
     {
@@ -293,9 +270,8 @@
   }
 
   function goToCeros() {
-    window.location.href = "https://view.ceros.com/mastercard-europe/test-form/p/4"; // à remplacer
+     window.top.location.href = "https://view.ceros.com/mastercard-europe/test-form/p/4";
   }
 </script>
-
 </body>
 </html>
