@@ -54,24 +54,10 @@ body.locked .answer {
   opacity: 0.4;
 }
 
-/* bonne réponse */
-.answer.correct {
-background: linear-gradient(90deg, #8db92e, #8db92e);
-	color: white;
+body.locked .answer.selected {
   opacity: 1;
-}
-
-/* mauvaise réponse */
-.answer.wrong {
-background: linear-gradient(90deg, #d22a2f, #a82226);
-	color: white;
-  opacity: 1;
-}
-
-/* 👇 important */
-body.locked .answer.correct,
-body.locked .answer.wrong {
-  opacity: 1;
+  background: #ffffff;
+  color: #000000;
 }
 	
 #timer {
@@ -228,7 +214,8 @@ body.locked .answer.wrong {
   let score = 0;
   let timer;
   let timeLeft = 20;
-
+let questionLocked = false;
+	
   function startQuiz() {
     document.getElementById("intro").classList.add("hidden");
     document.getElementById("quiz").classList.remove("hidden");
@@ -236,7 +223,9 @@ body.locked .answer.wrong {
   }
 	
 function showQuestion() {
-  document.getElementById("progress").textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+  document.getElementById("progress").textContent =
+    `Question ${currentQuestion + 1} of ${questions.length}`;
+
   resetTimer();
 
   const q = questions[currentQuestion];
@@ -245,26 +234,26 @@ function showQuestion() {
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
 
-  // 🔥 transformation en objets
+  // 👉 création avec info correct
   let answers = q.answers.map((answer, index) => ({
     text: answer,
     isCorrect: index === q.correct
   }));
 
-  // 🎲 shuffle (version safe)
+  // 🎲 shuffle (Fisher-Yates)
   for (let i = answers.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [answers[i], answers[j]] = [answers[j], answers[i]];
   }
 
-  // 🔥 création des boutons
+  // 👉 render buttons
   answers.forEach((answerObj) => {
     const btn = document.createElement("button");
     btn.textContent = answerObj.text;
 
     btn.classList.add("answer");
 
-    // ⚠️ IMPORTANT → string
+    // IMPORTANT
     btn.dataset.correct = answerObj.isCorrect ? "true" : "false";
 
     btn.onclick = () => selectAnswer(btn);
@@ -280,20 +269,9 @@ function selectAnswer(button) {
   clearInterval(timer);
 
   const isCorrect = button.dataset.correct === "true";
+  if (isCorrect) score++;
 
-  if (isCorrect) {
-    score++;
-    button.classList.add("correct");
-  } else {
-    button.classList.add("wrong");
-
-    // highlight bonne réponse
-    document.querySelectorAll("#answers .answer").forEach(btn => {
-      if (btn.dataset.correct === "true") {
-        btn.classList.add("correct");
-      }
-    });
-  }
+  button.classList.add("selected");
 
   setTimeout(() => {
     document.body.classList.remove("locked");
@@ -301,17 +279,25 @@ function selectAnswer(button) {
   }, 1000);
 }
 	
-  function nextQuestion() {
-    clearInterval(timer);
-    currentQuestion++;
+function nextQuestion() {
+  if (questionLocked) return; // ✅ évite double call
+  questionLocked = true;
 
-    if (currentQuestion < questions.length) {
-      showQuestion();
-    } else {
-      showResult();
-    }
+  clearInterval(timer);
+  currentQuestion++;
+
+  if (currentQuestion < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
   }
 
+  // reset lock après transition
+  setTimeout(() => {
+    questionLocked = false;
+  }, 50);
+}
+	
   function resetTimer() {
   const radius = 100; // rayon
   const totalTime = 20; // durée totale
@@ -345,20 +331,23 @@ function selectAnswer(button) {
     updateCircle();
 
     if (timeLeft <= 0) {
-      clearInterval(timer); // évite double trigger
-      nextQuestion();
-    }
+  clearInterval(timer);
+  if (!document.body.classList.contains("locked")) {
+    document.body.classList.add("locked");
+    nextQuestion();
+  }
+}
   }, 1000);
 }
+	
+function showResult() {
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("resultPage").classList.remove("hidden");
 
-  function showResult() {
-    document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("resultPage").classList.remove("hidden");
-
-    const percentage = Math.round((score / questions.length) * 100);
-    document.getElementById("result").textContent = percentage + "%";
-  }
-
+  document.getElementById("result").textContent =
+    `${score}/${questions.length}`;
+}
+	
   function goToCeros() {
      //window.top.location.href = "https://view.ceros.com/mastercard-europe/test-form/p/4";
 	 window.parent.postMessage({ action: "END_QUIZ" }, "*");
