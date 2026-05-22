@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Quiz</title>
+<title>Quiz Money20</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -27,31 +27,59 @@ button {
     width: 70%;
     border: none;
     border-radius: 8px;
-    background : #ff6a00;
     background: linear-gradient(90deg, #ff671b, #d22a2f 100%);
     color : #ffffff;
     cursor: pointer;
     font-size: 3rem;
 }
-button:hover {
-    background: #ff671b;
-}
-button:checked {
-    background: #ffffff;
-    color: #000000;
-}
+
+#readyBtn{
+	height: 150px;
+	}
+	
 .answers button {
     display: block;
     width: 100%;
+	height: 150px;
+	margin-bottom: 50px;
 }
+	
+.answer {
+  transition: all 0.3s ease;
+}
+
+/* état bloqué */
+body.locked .answer {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* bonne réponse */
+.answer.correct {
+background: linear-gradient(90deg, #8db92e, #8db92e);
+	color: white;
+  opacity: 1;
+}
+
+/* mauvaise réponse */
+.answer.wrong {
+background: linear-gradient(90deg, #d22a2f, #a82226);
+	color: white;
+  opacity: 1;
+}
+
+/* 👇 important */
+body.locked .answer.correct,
+body.locked .answer.wrong {
+  opacity: 1;
+}
+	
 #timer {
-    font-size: 45px;
     margin-bottom: 20px;
-    color: white;
 }
 .timer-circle {
-    width: 100px;
-    height: 100px;
+    width: 240px;
+    height: 240px;
     margin: 0 auto 20px;
     position: relative;
 }
@@ -76,6 +104,8 @@ button:checked {
     left: 50%;
     transform: translate(-50%, -50%);
     font-weight: bold;
+	font-size: 85px;
+	color: #ffffff;
 }
 #result {
     font-size: 12rem;
@@ -88,18 +118,21 @@ button:checked {
 }
 #question {
     color: white;
+	margin-bottom: 100px;
+	font-size: 4rem;
 }
 #progress {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     margin-bottom: 50px;
     color: #8c8c8c;
 }
 #thanksEnd {
-    font-size: 3rem;
+    font-size: 6rem;
 }
 #endBtn {
     margin-top: 50px;
     width: 70%;
+	height: 150px;
     border: none;
     border-radius: 8px;
     background : #141413;
@@ -115,6 +148,10 @@ button:checked {
     margin-top: 50px;
     padding-top: 25px;
 }
+#result-bottom-infos p {
+    font-size: 4rem;
+}	
+	
 </style>
 </head>
 <body>
@@ -125,16 +162,16 @@ button:checked {
     <!-- <h1>Bienvenue au Quiz</h1>
     <p>Testez vos connaissances !</p> --> 
     <img src="ready-title-v3.png" width="100%">
-    <button onclick="startQuiz()">I'm ready</button>
+    <button id="readyBtn" onclick="startQuiz()">I'm ready</button>
   </div>
   
   <!-- QUIZ -->
   <div id="quiz" class="hidden">
     <div id="progress"></div>
     <div class="timer-circle">
-      <svg width="100" height="100">
-        <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
-        <circle class="timer-progress" cx="50" cy="50" r="45" stroke-dasharray="283" stroke-dashoffset="0"></circle>
+      <svg width="240" height="240">
+        <circle class="timer-bg" cx="120" cy="120" r="100"></circle>
+        <circle class="timer-progress" cx="120" cy="120" r="100" stroke-dasharray="628" stroke-dashoffset="628"></circle>
       </svg>
       <div class="timer-text" id="timer">20</div>
     </div>
@@ -197,31 +234,73 @@ button:checked {
     document.getElementById("quiz").classList.remove("hidden");
     showQuestion();
   }
+	
+function showQuestion() {
+  document.getElementById("progress").textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+  resetTimer();
 
-  function showQuestion() {
-    // Mise à jour du titre de progression
-    document.getElementById("progress").textContent = `Question ${currentQuestion + 1} on ${questions.length}`;
-    resetTimer();
-    const q = questions[currentQuestion];
-    document.getElementById("question").textContent = q.question;
-    const answersDiv = document.getElementById("answers");
-    answersDiv.innerHTML = "";
+  const q = questions[currentQuestion];
+  document.getElementById("question").textContent = q.question;
 
-    q.answers.forEach((answer, index) => {
-      const btn = document.createElement("button");
-      btn.textContent = answer;
-      btn.onclick = () => selectAnswer(index);
-      answersDiv.appendChild(btn);
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  // 🔥 transformation en objets
+  let answers = q.answers.map((answer, index) => ({
+    text: answer,
+    isCorrect: index === q.correct
+  }));
+
+  // 🎲 shuffle (version safe)
+  for (let i = answers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [answers[i], answers[j]] = [answers[j], answers[i]];
+  }
+
+  // 🔥 création des boutons
+  answers.forEach((answerObj) => {
+    const btn = document.createElement("button");
+    btn.textContent = answerObj.text;
+
+    btn.classList.add("answer");
+
+    // ⚠️ IMPORTANT → string
+    btn.dataset.correct = answerObj.isCorrect ? "true" : "false";
+
+    btn.onclick = () => selectAnswer(btn);
+
+    answersDiv.appendChild(btn);
+  });
+}
+	
+function selectAnswer(button) {
+  if (document.body.classList.contains("locked")) return;
+  document.body.classList.add("locked");
+
+  clearInterval(timer);
+
+  const isCorrect = button.dataset.correct === "true";
+
+  if (isCorrect) {
+    score++;
+    button.classList.add("correct");
+  } else {
+    button.classList.add("wrong");
+
+    // highlight bonne réponse
+    document.querySelectorAll("#answers .answer").forEach(btn => {
+      if (btn.dataset.correct === "true") {
+        btn.classList.add("correct");
+      }
     });
   }
 
-  function selectAnswer(index) {
-    if (index === questions[currentQuestion].correct) {
-      score++;
-    }
+  setTimeout(() => {
+    document.body.classList.remove("locked");
     nextQuestion();
-  }
-
+  }, 1000);
+}
+	
   function nextQuestion() {
     clearInterval(timer);
     currentQuestion++;
@@ -234,30 +313,43 @@ button:checked {
   }
 
   function resetTimer() {
-    const circumference = 2 * Math.PI * 45;
-    document.querySelector('.timer-progress').style.strokeDasharray = circumference;
+  const radius = 100; // rayon
+  const totalTime = 20; // durée totale
 
-    function updateCircle() {
-      const progress = timeLeft / 20;
-      document.querySelector('.timer-progress').style.strokeDashoffset = circumference * (1 - progress);
-    }
+  const circle = document.querySelector('.timer-progress');
+  const circumference = 2 * Math.PI * radius;
 
-    window.updateCircle = updateCircle;
-    clearInterval(timer);
-    timeLeft = 20;
-    document.getElementById("timer").textContent = timeLeft;
-      updateCircle();
+  // Setup du cercle
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference;
 
-    timer = setInterval(() => {
-      timeLeft--;
-      document.getElementById("timer").textContent = timeLeft;
-      updateCircle();
-
-      if (timeLeft <= 0) {
-        nextQuestion();
-      }
-    }, 1000);
+  function updateCircle() {
+    const progress = timeLeft / totalTime;
+    const offset = circumference * (1 - progress);
+    circle.style.strokeDashoffset = offset;
   }
+
+  window.updateCircle = updateCircle;
+
+  clearInterval(timer);
+
+  timeLeft = totalTime;
+  document.getElementById("timer").textContent = timeLeft;
+
+  updateCircle();
+
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = timeLeft;
+
+    updateCircle();
+
+    if (timeLeft <= 0) {
+      clearInterval(timer); // évite double trigger
+      nextQuestion();
+    }
+  }, 1000);
+}
 
   function showResult() {
     document.getElementById("quiz").classList.add("hidden");
